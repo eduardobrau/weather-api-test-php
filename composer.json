@@ -1,0 +1,11 @@
+{
+  "name": "weather-api-test-php",
+  "description": "API de previsão de tempo, onde lista as cidades, previsão de tempo por cidades etc...",
+  "type": "project",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}
