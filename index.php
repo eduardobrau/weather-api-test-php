@@ -12,10 +12,14 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use App\controllers\Cidades;
+use App\core\Controller;
 
-$cidades = new Cidades;
-$cidades->index();
+try{
+	$controller = new Controller;
+	$controller = $controller->load();
+}catch(\Exception $e){
+	echo $e->getMessage();
+}
 
 
 
