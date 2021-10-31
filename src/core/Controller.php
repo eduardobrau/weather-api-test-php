@@ -1,10 +1,21 @@
 <?php
 
+/**
+ * Wheater API Test PHP.
+ *
+ * PHP version 7.4
+ *
+ * @description  	Classe responsável por instaciar os controllers do App e seus parâmetros de forma dinâmica.
+ * @author   			Eduardo Esteves <eduardostevessilva@gmail.com>
+ * @date					31/10/2021 15:30
+ * @link     			https://github.com/eduardobrau/weather-api-test-php
+ */
 
 namespace App\core;
 
 use App\core\Uri;
-
+use App\components\Helpers;
+use App\core\Httpd;
 
 class Controller {
 
@@ -35,12 +46,8 @@ class Controller {
 			$this->setAction();
 			$this->setParams();
 		}else {
-			$erro = [
-				'msg' => 'Router not found',
-				'code' => 404
-			];
-			$erro = \json_encode($erro);
-			throw new \Exception($erro);
+			Httpd::setStatusCode(404);
+			throw new \Exception('Not Found');
 		}
 	}
 
@@ -60,6 +67,20 @@ class Controller {
 	 */
 	protected function setParams() {
 		$this->params = Controller::Uri()::getParams();
+	}
+
+	public function exec() {
+		$controller = new $this->name_space();
+		$method_http = Httpd::getMethodHttp();
+		$action = $controller::Uri()::getAction();
+		$action = "{$method_http}_{$action}";
+		$params = $controller::Uri()::getParams();
+
+		if(!method_exists($controller, $action)){
+			Httpd::statusCode(404);
+			throw new \Exception('Not found');
+		}
+		$controller->$action($params);
 	}
 
 }

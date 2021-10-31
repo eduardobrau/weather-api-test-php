@@ -13,12 +13,19 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use App\core\Controller;
+use App\components\Helpers;
+use App\core\Httpd;
 
 try{
 	$controller = new Controller;
-	$controller = $controller->load();
+	$controller->load();
+	$controller->exec();
 }catch(\Exception $e){
-	echo $e->getMessage();
+	$code = (!empty(Httpd::getStatusCode())) ? Httpd::getStatusCode() : 500;
+	Httpd::statusCode($code);
+	$msg = Helpers::msgJson($e->getMessage(), $code);
+	echo $msg;
+	die;
 }
 
 
