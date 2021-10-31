@@ -1,6 +1,21 @@
 <?php
 
+/**
+ * Wheater API Test PHP.
+ *
+ * PHP version 7.4
+ *
+ * @description  	Classe responsável por capturar valores da url e distinguir o que é controller, actions, params etc..
+ * @author   			Eduardo Esteves <eduardostevessilva@gmail.com>
+ * @date					31/10/2021 15:30
+ * @link     			https://github.com/eduardobrau/weather-api-test-php
+ */
+
 namespace App\core;
+
+
+use App\components\Helpers;
+use App\core\Httpd;
 
 
 class Uri {
@@ -44,29 +59,16 @@ class Uri {
 	}
 
 	public static function getAction() {
-		$uri = self::getUri();
-
-		if(empty($uri) || !is_string($uri)){
-			$msg = self::msgJson('Bad Request', 400);
-			throw new \Exception($msg);
-		}
-
-		$bar = substr($uri, -1);
-
-		if($bar === "/"){
-			$uri = substr($uri, 0, -1);
-		}
-
-		$action = explode('/', $uri);
-		$action = strtolower($action[1]);
+		$uri 				= self::getUri();
+		$uri 				= Helpers::removeLastBar($uri);
+		$action 		= explode('/', $uri);
+		$action = (isset($action[1])) ? strtolower($action[1]) : "/";
 
 		if(!is_string($action)){
-			$erro = [
-				'msg' 	=> 'Bad Request',
-				'code' 	=> 400
-			];
-			$erro = \json_encode($erro);
-			throw new \Exception($erro);
+			Httpd::statusCode(400);
+			$msg = Helpers::msgJson('Bad Request', 400);
+			echo $msg;
+			die;
 		}else if( empty($action) || $action === "/" || is_numeric($action) ){
 			$action = 'index';
 		}
@@ -76,20 +78,9 @@ class Uri {
 	}
 
 	public static function getParams() {
-		$uri = self::getUri();
-
-		if(empty($uri) || !is_string($uri)){
-			$msg = self::msgJson('Bad Request', 400);
-			throw new \Exception($msg);
-		}
-
-		$bar = substr($uri, -1);
-
-		if($bar === "/"){
-			$uri = substr($uri, 0, -1);
-		}
-
-		$uriArray = explode('/', $uri);
+		$uri 			 = self::getUri();
+		$uri 			 = Helpers::removeLastBar($uri);
+		$uriArray  = explode('/', $uri);
 
 		if(!in_array(self::$action, $uriArray)){
 			array_splice($uriArray, 1, 0, self::$action);
