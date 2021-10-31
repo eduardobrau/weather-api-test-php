@@ -6,6 +6,9 @@ namespace App\core;
 class Uri {
 	// Retorna a instância da própria classe, caso já exista, retorna a instância existente (Singleton).
 	private static $instance;
+	public static $controller;
+	public static $action;
+	public static $params;
 
 	/**
 	 * @return string ignorando query string
@@ -35,7 +38,68 @@ class Uri {
 	 */
 	public static function getController() {
 		$controller = explode('/', self::getUri());
-		return ucfirst($controller[0]);
+		$controller = ucfirst($controller[0]);
+		self::$controller = $controller;
+		return $controller;
+	}
+
+	public static function getAction() {
+		$uri = self::getUri();
+
+		if(empty($uri) || !is_string($uri)){
+			$msg = self::msgJson('Bad Request', 400);
+			throw new \Exception($msg);
+		}
+
+		$bar = substr($uri, -1);
+
+		if($bar === "/"){
+			$uri = substr($uri, 0, -1);
+		}
+
+		$action = explode('/', $uri);
+		$action = strtolower($action[1]);
+
+		if(!is_string($action)){
+			$erro = [
+				'msg' 	=> 'Bad Request',
+				'code' 	=> 400
+			];
+			$erro = \json_encode($erro);
+			throw new \Exception($erro);
+		}else if( empty($action) || $action === "/" || is_numeric($action) ){
+			$action = 'index';
+		}
+
+		self::$action = $action;
+		return $action;
+	}
+
+	public static function getParams() {
+		$uri = self::getUri();
+
+		if(empty($uri) || !is_string($uri)){
+			$msg = self::msgJson('Bad Request', 400);
+			throw new \Exception($msg);
+		}
+
+		$bar = substr($uri, -1);
+
+		if($bar === "/"){
+			$uri = substr($uri, 0, -1);
+		}
+
+		$uriArray = explode('/', $uri);
+
+		if(!in_array(self::$action, $uriArray)){
+			array_splice($uriArray, 1, 0, self::$action);
+		}
+		foreach($uriArray as $key => $uri) {
+			if($key>1) {
+				self::$params[] = $uri;
+			}
+		}
+		return self::$params;
 	}
 
 }

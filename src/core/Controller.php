@@ -11,6 +11,7 @@ class Controller {
 	private static $uri;
 	private $name_space;
 	private $action;
+	private $params;
 	const DIR_CONTROLLER = "\\App\\controllers\\";
 
 	/**
@@ -25,15 +26,14 @@ class Controller {
 	/**
 	 * Tenta fazer o carregamento do controller se tudo ocorrer bem conforme a url recebida.
 	 *
-	 * @return object|string com a mensagem de erro a ser retornada na requisição.
+	 * Caso o controller existir seta a action e seus params a serem executados pelo controller.
+	 * @return void seta a action e seus parametros caso informado na url.
 	 */
 	public function load() {
-		if ($this->isHome()) {
-			$this->action = "home";
-		}
 		$this->name_space = self::DIR_CONTROLLER . Controller::Uri()::getController();
 		if (class_exists($this->name_space)) {
-			return new $this->name_space();
+			$this->setAction();
+			$this->setParams();
 		}else {
 			$erro = [
 				'msg' => 'Router not found',
@@ -45,12 +45,21 @@ class Controller {
 	}
 
 	/**
-	 * Verifica se a url requisitada é a home page.
+	 * Captura a action da url caso informado, para ser executada posterior pelo seu controller correspondente.
 	 *
-	 * @return boolean
+	 * @return void apenas seta a propriedade action de sua classe para ser executado posterior.
 	 */
-	private function isHome() {
-		return empty(self::Uri()::getUri()) || self::Uri()::getUri() == '/';
+	protected function setAction() {
+		$this->action = Controller::Uri()::getAction();
+	}
+
+	/**
+	 * Captura os parâmetros da url caso informado.
+	 *
+	 * @return void apenas seta a propriedade params na classe para uso posterior.
+	 */
+	protected function setParams() {
+		$this->params = Controller::Uri()::getParams();
 	}
 
 }
