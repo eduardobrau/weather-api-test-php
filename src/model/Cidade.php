@@ -43,7 +43,11 @@ class Cidade {
 	 *
 	 * @return JSON sem espaços e tabs com as cidades que tem um clima.
 	 */
-	public function get_climas() {
+	public function get_climas($param) {
+		if(!is_null($param) && !is_numeric($param)){
+			throw new \Exception('Internal Server Error');
+		}
+
 		$cidades       = $this->get_all_datas("city_list.json");
 		$climas        = $this->get_all_datas("weather_list.json");
 		$obj_climas    = json_decode($climas);
@@ -51,16 +55,22 @@ class Cidade {
 
 		$climas = array();
 
-		foreach($obj_climas as $clima){
-			foreach($obj_cidades as $cidade){
-				if($clima->cityId === $cidade->id){
-					$city    = json_decode(json_encode($cidade), true);
+		foreach ($obj_climas as $clima) {
+			foreach ($obj_cidades as $cidade) {
+				if( empty($param) && ($clima->cityId === $cidade->id) ){
+					$city = json_decode(json_encode($cidade), true);
 					$weather = json_decode(json_encode($clima), true);
-					$city 	 = array_merge($city, array('weather' => $weather['data']));
+					$city = array_merge($city, array('weather' => $weather['data']));
+					array_push($climas, $city);
+				}else if( ($clima->cityId === (int)$param) && ($cidade->id === (int)$param) ) {
+					$city = json_decode(json_encode($cidade), true);
+					$weather = json_decode(json_encode($clima), true);
+					$city = array_merge($city, array('weather' => $weather['data']));
 					array_push($climas, $city);
 				}
 			}
 		}
+
 		return  json_encode($climas);
 	}
 }
