@@ -20,10 +20,11 @@ class Cidade {
 	/**
 	 * Retorna a lista de cidades no formato JSON.
 	 *
-	 * @return string o JSON sem espaços e tabs.
+	 * @param JSON $document um JSON com o nome do arquivo a ser carregado.
+	 * @return JSON o array de JSON sem espaços e tabs.
 	 */
-	public function get_all_datas() {
-		$datas = file_get_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "city_list.json");
+	public function get_all_datas($document) {
+		$datas = file_get_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $document);
 		return Helpers::clearJson($datas);
 	}
 
@@ -34,6 +35,32 @@ class Cidade {
 	 * @return string o JSON sem espaços e tabs.
 	 */
 	public function get_index() {
-		return $this->get_all_datas();
+		return $this->get_all_datas("city_list.json");
+	}
+
+	/**
+	 * Retorna a lista de cidades que possuem um clima disponível com a informação do clima.
+	 *
+	 * @return JSON sem espaços e tabs com as cidades que tem um clima.
+	 */
+	public function get_climas() {
+		$cidades       = $this->get_all_datas("city_list.json");
+		$climas        = $this->get_all_datas("weather_list.json");
+		$obj_climas    = json_decode($climas);
+		$obj_cidades   = json_decode($cidades);
+
+		$climas = array();
+
+		foreach($obj_climas as $clima){
+			foreach($obj_cidades as $cidade){
+				if($clima->cityId === $cidade->id){
+					$city    = json_decode(json_encode($cidade), true);
+					$weather = json_decode(json_encode($clima), true);
+					$city 	 = array_merge($city, array('weather' => $weather['data']));
+					array_push($climas, $city);
+				}
+			}
+		}
+		return  json_encode($climas);
 	}
 }
