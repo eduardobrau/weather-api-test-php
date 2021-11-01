@@ -71,7 +71,7 @@ class Helpers{
 	 */
 	public static function jsonToObject($json){
 		$datas = json_decode($json);
-		return is_object($datas[0]);
+		return (is_array($datas) && sizeof($datas) >= 1) ? is_object($datas[0]) : is_object($datas);
 	}
 
 }
