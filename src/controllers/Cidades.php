@@ -26,7 +26,7 @@ class Cidades extends Controller {
 	 *
 	 * @return array um array de Json sem espaços e tabs.
 	 */
-	public function get_index($param = null) {
+	public function get_index($param = null, $query_string = null) {
 		$cidade = new Cidade;
 		$datas = $cidade->get_index();
 		if( (empty($datas)) || (!Helpers::jsonToObject($datas)) ){
@@ -42,13 +42,18 @@ class Cidades extends Controller {
 	 *
 	 * @return JSON um array de Json sem espaços e tabs com cidades que tem um clima.
 	 */
-	public function get_climas($param = null) {
+	public function get_climas($param = null, $query_string = null) {
 		$cidade = new Cidade;
-		$datas = $cidade->get_climas($param);
+		$datas = $cidade->get_climas($param, $query_string);
 		if( (empty($datas)) || (!Helpers::jsonToObject($datas)) ){
 			throw new \Exception('Internal Server Error');
 		}
-		Httpd::statusCode(200);
+		$length = json_decode($datas, true);
+		$code = 200;
+		if(sizeof($length) <= 0){
+			$code = 404;
+		}
+		Httpd::statusCode($code);
 		echo $datas;
 		die;
 	}
