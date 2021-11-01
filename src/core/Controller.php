@@ -23,6 +23,7 @@ class Controller {
 	private $name_space;
 	private $action;
 	private $params;
+	private $query_string;
 	const DIR_CONTROLLER = "\\App\\controllers\\";
 
 	/**
@@ -45,6 +46,7 @@ class Controller {
 		if (class_exists($this->name_space)) {
 			$this->setAction();
 			$this->setParams();
+			$this->setQueryString();
 		}else {
 			Httpd::setStatusCode(404);
 			throw new \Exception('Not Found');
@@ -69,18 +71,28 @@ class Controller {
 		$this->params = Controller::Uri()::getParams();
 	}
 
+	/**
+	 * Captura os parâmetros da url caso informado.
+	 *
+	 * @return void apenas seta a propriedade params na classe para uso posterior.
+	 */
+	protected function setQueryString() {
+		$this->query_string = Controller::Uri()::getQueryString();
+	}
+
 	public function exec() {
 		$controller = new $this->name_space();
 		$method_http = Httpd::getMethodHttp();
 		$action = $controller::Uri()::getAction();
 		$action = "{$method_http}_{$action}";
-		$params = $controller::Uri()::getParams();
+		$param = $controller::Uri()::getParams();
+		$query_string = $controller::Uri()::getQueryString();
 
 		if(!method_exists($controller, $action)){
 			Httpd::statusCode(404);
 			throw new \Exception('Not found');
 		}
-		$controller->$action($params);
+		$controller->$action($param, $query_string);
 	}
 
 }
