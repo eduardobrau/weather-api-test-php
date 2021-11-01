@@ -26,7 +26,7 @@ class Cidades extends Controller {
 	 *
 	 * @return array um array de Json sem espaços e tabs.
 	 */
-	public function get_index($params = null) {
+	public function get_index($param = null) {
 		$cidade = new Cidade;
 		$datas = $cidade->get_index();
 		if( (empty($datas)) || (!Helpers::jsonToObject($datas)) ){
@@ -42,9 +42,9 @@ class Cidades extends Controller {
 	 *
 	 * @return JSON um array de Json sem espaços e tabs com cidades que tem um clima.
 	 */
-	public function get_climas($params = null) {
+	public function get_climas($param = null) {
 		$cidade = new Cidade;
-		$datas = $cidade->get_climas();
+		$datas = $cidade->get_climas($param);
 		if( (empty($datas)) || (!Helpers::jsonToObject($datas)) ){
 			throw new \Exception('Internal Server Error');
 		}
