@@ -23,7 +23,7 @@ class Uri {
 	private static $instance;
 	public static $controller;
 	public static $action;
-	public static $params;
+	public static $param;
 
 	/**
 	 * @return string ignorando query string
@@ -85,12 +85,22 @@ class Uri {
 		if(!in_array(self::$action, $uriArray)){
 			array_splice($uriArray, 1, 0, self::$action);
 		}
+		$params = array();
 		foreach($uriArray as $key => $uri) {
 			if($key>1) {
-				self::$params[] = $uri;
+				$params[] = $uri;
 			}
 		}
-		return self::$params;
+		if(sizeof($params) > 1) {
+			Httpd::setStatusCode(400);
+			throw new \Exception('Bad Request');
+		}else if(sizeof($params) == 1){
+			$param = $params[0];
+		}else{
+			$param = null;
+		}
+		self::$param = $param;
+		return self::$param;
 	}
 
 }
