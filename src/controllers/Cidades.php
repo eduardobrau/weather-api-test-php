@@ -36,4 +36,20 @@ class Cidades extends Controller {
 		echo $datas;
 		die;
 	}
+
+	/**
+	 * Retorna a lista de cidades que possuem um clima disponível com a informação do clima.
+	 *
+	 * @return JSON um array de Json sem espaços e tabs com cidades que tem um clima.
+	 */
+	public function get_climas($params = null) {
+		$cidade = new Cidade;
+		$datas = $cidade->get_climas();
+		if( (empty($datas)) || (!Helpers::jsonToObject($datas)) ){
+			throw new \Exception('Internal Server Error');
+		}
+		Httpd::statusCode(200);
+		echo $datas;
+		die;
+	}
 }
