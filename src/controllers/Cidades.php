@@ -15,10 +15,25 @@ namespace App\controllers;
 
 
 use App\core\Controller;
+use App\model\Cidade;
+use App\components\Helpers;
+use App\core\Httpd;
+use PHPUnit\Util\Json;
 
 class Cidades extends Controller {
+	/**
+	 * Retorna a lista de cidades no formato JSON já devolvendo o status code apropriado para a requisição.
+	 *
+	 * @return array um array de Json sem espaços e tabs.
+	 */
 	public function get_index($params = null) {
-		echo '{"msg": "Bem vindo a Weather API", "code":200}';
+		$cidade = new Cidade;
+		$datas = $cidade->get_index();
+		if( (empty($datas)) || (!Helpers::jsonToObject($datas)) ){
+			throw new \Exception('Internal Server Error');
+		}
+		Httpd::statusCode(200);
+		echo $datas;
 		die;
 	}
 }
