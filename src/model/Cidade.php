@@ -41,10 +41,14 @@ class Cidade {
 	/**
 	 * Retorna a lista de cidades que possuem um clima disponível com a informação do clima.
 	 *
+	 * Essa mesma função atende tres requisicoes sem parametros /cidades/climas com parametro /cidades/climas/id e
+	 * tambem a listagem de cidades com clima filtrando por seu id e data por
+	 * exemplo /cidades/climas/id/?data_ini=2017-03-01&data_fim=2017-03-05
+	 *
 	 * @return JSON sem espaços e tabs com as cidades que tem um clima.
 	 */
-	public function get_climas($param) {
-		if(!is_null($param) && !is_numeric($param)){
+	public function get_climas($param, $query_string) {
+		if( (!is_null($param) && !is_numeric($param)) && (!is_null($query_string) && !is_string($query_string)) ){
 			throw new \Exception('Internal Server Error');
 		}
 
@@ -63,14 +67,36 @@ class Cidade {
 					$city = array_merge($city, array('weather' => $weather['data']));
 					array_push($climas, $city);
 				}else if( ($clima->cityId === (int)$param) && ($cidade->id === (int)$param) ) {
-					$city = json_decode(json_encode($cidade), true);
-					$weather = json_decode(json_encode($clima), true);
-					$city = array_merge($city, array('weather' => $weather['data']));
-					array_push($climas, $city);
+					if(isset($query_string)){
+						$city 	 = array();
+						$weather = array();
+						parse_str($query_string, $data_choice);
+						$data_ini = strtotime($data_choice['data_ini']);
+						$data_fim = strtotime($data_choice['data_fim']);
+						foreach($clima->data as $obj){
+							if( ($data_ini <= $obj->dt) && ($obj->dt <= $data_fim) ){
+								if(empty($city)){
+									$city 			= json_decode(json_encode($cidade), true);
+								}
+								$weather[]  = json_decode(json_encode($obj), true);
+							}
+						}
+						if(sizeof($city) >= 1){
+							$city = array_merge($city, array('weather' => $weather));
+							array_push($climas, $city);
+						}
+					}else{
+						$city 				= json_decode(json_encode($cidade), true);
+						$weather 			= json_decode(json_encode($clima), true);
+						$city = array_merge($city, array('weather' => $weather['data']));
+						array_push($climas, $city);
+					}
 				}
 			}
 		}
-
-		return  json_encode($climas);
+		if(sizeof($climas) >= 1){
+			return  json_encode($climas);
+		}
+		return "{}";
 	}
 }
