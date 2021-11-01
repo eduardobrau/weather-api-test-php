@@ -53,4 +53,25 @@ class Helpers{
 		return $uri;
 	}
 
+	/**
+	 * Limpa espaços e tabs de um JSON reduzindo o tamanho dos dados trafegado na rede.
+	 *
+	 * @param string $json uma string JSON.
+	 * @return array o array de json sem espaços e tabs.
+	 */
+	public static function clearJson($json){
+		return preg_replace('/(\r\n||\t||\s{2})/', '', $json);
+	}
+
+	/**
+	 * Avalia se o JSON informado pode ser convertido em um objeto tipo std class.
+	 *
+	 * @param json uma string JSON.
+	 * @return boolean true ou falso para a avaliação.
+	 */
+	public static function jsonToObject($json){
+		$datas = json_decode($json);
+		return is_object($datas[0]);
+	}
+
 }
