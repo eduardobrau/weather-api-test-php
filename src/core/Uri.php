@@ -24,6 +24,7 @@ class Uri {
 	public static $controller;
 	public static $action;
 	public static $param;
+	public static $query_string;
 
 	/**
 	 * @return string ignorando query string
@@ -101,6 +102,12 @@ class Uri {
 		}
 		self::$param = $param;
 		return self::$param;
+	}
+
+	public static function getQueryString() {
+		$query_string = (!empty($_SERVER['QUERY_STRING'])) ? $_SERVER['QUERY_STRING'] : null;
+		self::$query_string = $query_string;
+		return $query_string;
 	}
 
 }
