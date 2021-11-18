@@ -18,18 +18,25 @@ use App\components\Helpers;
 use PHPUnit\Framework\TestCase;
 
 class HelpersTest extends TestCase {
-	public function testConverterMsgJson() {
+
+	public function testshouldReturnJsonStringWhenParametersIsValid() {
 		$msgJson = Helpers::msgJson('Bad Request', 400);
 		$this->assertEquals('{"msg":"Bad Request","code":400}', $msgJson);
 	}
 
-	public function testMessageIsNotString() {
+	/**
+	 * @dataProvider dataProviderMsgToJsonShouldThowException
+	*/
+	public function testMsgToJsonShouldThowException($message, $code) {
 		$this->expectException('\Exception');
-		Helpers::msgJson(2121212, 400);
+		Helpers::msgJson($message, $code);
 	}
 
-	public function testCodeIsNotInterger() {
-		$this->expectException('\Exception');
-		Helpers::msgJson('Bad Request', '400');
+	public function dataProviderMsgToJsonShouldThowException() {
+		return [
+			'shouldThowExceptionWhenMessageIsNotAstring' 	=> ['message' => 1212121, 'code' => 404],
+			'shouldThowExceptionWhenCodeIsNotAnumber' 		=> ['message' => 'Bad Request', 'code' => '404']
+		];
 	}
+
 }
